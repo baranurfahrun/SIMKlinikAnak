@@ -20,7 +20,17 @@ foreach ($integrity_hashes as $file => $expected_hash) {
 
     if ($expected_hash !== '0000000000000000000000000000000000000000') {
         if (file_exists($real_path)) {
-            if (sha1_file($real_path) !== $expected_hash) {
+            // LOGIKA AUDIT 24 JAM (Pola Baru)
+            $last_checked = session()->get('integrity_checked_at_' . md5($file), 0);
+            $twenty_four_hours = 86400; // detik (24 jam)
+            $is_need_check = (time() - $last_checked > $twenty_four_hours);
+
+            if (!$is_need_check) {
+                // Lewati sha1_file (Menu Instan)
+                $status = "Protected (Cached)";
+            } else {
+                // Jalankan Audit Hash (Dilakukan setiap 24 jam sekali)
+                if (sha1_file($real_path) !== $expected_hash) {
                 $status = "Tampered";
                 
                 if (!$is_bypass_route) {
@@ -61,6 +71,9 @@ foreach ($integrity_hashes as $file => $expected_hash) {
                     </body>
                     </html>
                     ");
+                } else {
+                    // Audit Sukses! Catat waktu pengecekan untuk 24 jam kedepan
+                    session()->put('integrity_checked_at_' . md5($file), time());
                 }
             }
         }
