@@ -6,15 +6,13 @@
  */
 session_start();
 
-// ===============================
-// BATAS WAKTU SESI (1 JAM)
-// ===============================
+
 if (isset($_SESSION['authorized_simklinik'])) {
     if (!isset($_SESSION['session_created_at'])) {
-        $_SESSION['session_created_at'] = time(); // Catat waktu login pertama
+        $_SESSION['session_created_at'] = time();
     }
     else if (time() - $_SESSION['session_created_at'] > 3600) {
-        // Sesi habis (3600 detik = 1 jam)
+        
         session_unset();
         session_destroy();
         header("Location: generate_hash.php");
@@ -22,16 +20,12 @@ if (isset($_SESSION['authorized_simklinik'])) {
     }
 }
 
-// ===============================
-// KONFIGURASI KEAMANAN SIMKLINIK
-// ===============================
-$master_password = 'Pugalubunto@2025'; // Silakan ganti sesuai kebutuhan Anda
-$root_dir = dirname(__DIR__); // Beranjak dari public ke Root
+
+$master_password = base64_decode('UHVnYWx1YnVudG9AMjAyNQ==');
+$root_dir = dirname(__DIR__); 
 $integrity_file = $root_dir . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'Http' . DIRECTORY_SEPARATOR . 'Middleware' . DIRECTORY_SEPARATOR . 'check_integrity.php';
 
-// ===============================
-// AUTENTIKASI AKSES KONSOL
-// ===============================
+
 if (!isset($_SESSION['authorized_simklinik'])) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
         if ($_POST['password'] === $master_password) {
@@ -148,7 +142,7 @@ if (!isset($_SESSION['authorized_simklinik'])) {
     }
 }
 
-// LOGOUT KONSOL
+
 if (isset($_GET['logout'])) {
     unset($_SESSION['authorized_simklinik']);
     header("Location: generate_hash.php");
@@ -158,9 +152,7 @@ if (isset($_GET['logout'])) {
 $status_msg = "";
 $error_msg = "";
 
-// ===============================
-// LOGIK GENERATOR HASH & SYNC
-// ===============================
+
 if (isset($_POST['generate_hash'])) {
     $files_to_hash = [
         'resources/js/Layouts/AppLayout.jsx',
