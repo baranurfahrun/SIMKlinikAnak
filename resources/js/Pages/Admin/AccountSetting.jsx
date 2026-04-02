@@ -233,7 +233,7 @@ export default function AccountSetting({ auth, accounts }) {
                                                 >
                                                     <i className="fas fa-key text-[10px]"></i>
                                                 </button>
-                                                {acc.username !== 'admin' && (
+                                                {acc.username !== 'admin' && !acc.id.startsWith('NEW_DOKTER_') && (
                                                     <button
                                                         onClick={() => handleDelete(acc)}
                                                         className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"
