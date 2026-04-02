@@ -33,9 +33,9 @@ echo - Memeriksa pembaruan di GitHub...
 where git >nul 2>nul
 if %errorLevel% equ 0 (
     git config --global --add safe.directory "%cd%" >nul 2>&1
-    git fetch origin --quiet >nul 2>&1
+    git fetch origin --quiet
     
-    if %errorLevel% equ 0 (
+    if !errorLevel! equ 0 (
         set "BRANCH_NAME=master"
         git rev-parse --verify origin/master >nul 2>&1
         if !errorLevel! neq 0 set "BRANCH_NAME=main"
@@ -44,13 +44,26 @@ if %errorLevel% equ 0 (
         for /f "tokens=*" %%b in ('git rev-parse origin/!BRANCH_NAME!') do set R_HASH=%%b
         
         if not "!L_HASH!"=="!R_HASH!" (
-            echo [UPDATE] Versi baru ditemukan! Sinkronisasi...
-            git reset --hard origin/!BRANCH_NAME! --quiet
-            git pull origin !BRANCH_NAME! --quiet
+            echo [UPDATE] Versi baru ditemukan! Memulai Sinkronisasi dari GitHub...
+            echo.
+            git reset --hard origin/!BRANCH_NAME!
+            git pull origin !BRANCH_NAME!
+            echo.
+            if !errorLevel! neq 0 (
+                echo [ERROR] Gagal menarik update dari GitHub! Tolong cek akses internet atau password Git Anda.
+                echo Silakan periksa tulisan error di atas.
+                pause
+            ) else (
+                echo [OK] Update berhasil ditarik dengan sempurna!
+            )
         ) else (
             echo [INFO] Sistem sudah up-to-date.
         )
+    ) else (
+        echo [WARNING] Gagal menghubungi GitHub. Pastikan internet jalan atau repositori terbuka.
     )
+) else (
+    echo [WARNING] Aplikasi GIT belum ter-install di Windows Anda! Fitur Auto-Update dimatikan.
 )
 
 :: 6. Jalankan Database XAMPP
