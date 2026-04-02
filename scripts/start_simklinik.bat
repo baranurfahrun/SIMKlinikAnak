@@ -63,11 +63,11 @@ if exist "C:\xampp\xampp_start.exe" (
 :: 7. Jalankan Server Utama
 echo.
 echo ==========================================================
-echo   STATUS: ONLINE [127.0.0.1:8000]
-echo   Silakan gunakan Ikon PWA di Desktop Anda.
+echo   STATUS: ONLINE [0.0.0.0:8000]
+echo   Aplikasi bisa diakses dari komputer klien.
 echo ==========================================================
 echo.
-php artisan serve --host=127.0.0.1 --port=8000
+php artisan serve --host=0.0.0.0 --port=8000
 
 if %errorLevel% neq 0 pause
 popd
