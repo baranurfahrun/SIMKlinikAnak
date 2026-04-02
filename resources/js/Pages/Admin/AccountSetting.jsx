@@ -8,7 +8,7 @@ export default function AccountSetting({ auth, accounts }) {
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, delete: destroyForm } = useForm({
         id: '',
         role: '',
         new_username: '',
@@ -112,8 +112,7 @@ export default function AccountSetting({ auth, accounts }) {
             if (result.isConfirmed) {
                 // Menggunakan manual delete via Inertia jika route delete tidak didefinisikan secara resource
                 // Tapi kita sudah buat destroy di controller, pastikan route-nya ada
-                post(route('akun.destroy', user.id), {
-                    _method: 'DELETE',
+                destroyForm(route('akun.destroy', user.id), {
                     onSuccess: () => {
                         Swal.fire({
                             title: 'Terhapus!',
