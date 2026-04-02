@@ -149,25 +149,33 @@ class AccountController extends Controller
             return redirect()->back()->with('error', 'Hapus akun sendiri? Jangan bercanda Bro! 😂');
         }
 
-        // Jika ini adalah dokter yang datanya belum dibuatkan akun, hapus dokter dari database
-        if (strpos($id, 'NEW_DOKTER_') === 0) {
-            $kd_dokter = str_replace('NEW_DOKTER_', '', $id);
-            $dokter = \App\Models\Dokter::where('kd_dokter', $kd_dokter)->first();
-            if ($dokter) {
-                $dokter->delete();
-                return redirect()->back()->with('success', 'Data Dokter ganda/kosong berhasil dihapus dari sistem sepenuhnya.');
+        try {
+            // Jika ini adalah dokter yang datanya belum dibuatkan akun, hapus dokter dari database
+            if (strpos($id, 'NEW_DOKTER_') === 0) {
+                $kd_dokter = str_replace('NEW_DOKTER_', '', $id);
+                $dokter = \App\Models\Dokter::where('kd_dokter', $kd_dokter)->first();
+                if ($dokter) {
+                    $dokter->delete();
+                    return redirect()->back()->with('success', 'Data Dokter ganda/kosong berhasil dihapus dari sistem sepenuhnya.');
+                }
             }
-        }
 
-        $admin = Admin::find($id);
-        if ($admin) {
-            $admin->delete();
-        } else {
-            $pegawai = UserPegawai::find($id);
-            if ($pegawai) $pegawai->delete();
-        }
+            $admin = Admin::find($id);
+            if ($admin) {
+                $admin->delete();
+            } else {
+                $pegawai = UserPegawai::find($id);
+                if ($pegawai) $pegawai->delete();
+            }
 
-        return redirect()->back()->with('success', 'Akun telah berhasil dihapus dari sistem.');
+            return redirect()->back()->with('success', 'Akun telah berhasil dihapus dari sistem.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Tangani error Foreign Key (Integritas Database)
+            if ($e->getCode() == "23000") {
+                return redirect()->back()->with('error', 'Gagal hapus! Data ini sudah digunakan/terikat di tabel lain (seperti Registrasi Periksa). Hapus dulu data pendaftarannya jika ingin benar-benar menghapus dokter ini.');
+            }
+            return redirect()->back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage());
+        }
     }
 
     public function updateAccess(Request $request, $id)
