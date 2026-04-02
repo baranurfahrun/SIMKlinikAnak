@@ -13,7 +13,7 @@ class PegawaiController extends Controller
     public function index()
     {
         $dokter = Dokter::orderBy('nm_dokter', 'asc')->get();
-        $pegawai = UserPegawai::all();
+        $pegawai = UserPegawai::where('jabatan', '!=', 'Dokter')->get();
 
         return Inertia::render('Admin/Kepegawaian', [
             'dokter' => $dokter,

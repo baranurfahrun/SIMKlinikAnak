@@ -30,11 +30,9 @@ class AccountController extends Controller
             ];
         });
 
-        // Ambil semua id_user yang sudah terdaftar di user_pegawai
+        // Ambil semua nik yang sudah terdaftar di user_pegawai
         $pegawais = UserPegawai::all();
-        $registeredIds = $pegawais->map(function($p) {
-            return SIKCrypt::decrypt($p->id_user);
-        })->toArray();
+        $registeredNiks = $pegawais->pluck('nik')->filter()->toArray();
 
         $pegawaiList = $pegawais->map(function($p) {
             return [
@@ -48,10 +46,10 @@ class AccountController extends Controller
             ];
         });
 
-        // Ambil Dokter yang belum punya akun di user_pegawai
+        // Ambil Dokter yang belum punya akun di user_pegawai (berdasarkan NIK)
         $dokters = \App\Models\Dokter::all();
-        $dokterList = $dokters->filter(function($d) use ($registeredIds) {
-            return !in_array($d->kd_dokter, $registeredIds);
+        $dokterList = $dokters->filter(function($d) use ($registeredNiks) {
+            return !in_array($d->kd_dokter, $registeredNiks);
         })->map(function($d) {
             return [
                 'id' => 'NEW_DOKTER_' . $d->kd_dokter, // ID Semu untuk trigger aktivasi
@@ -104,16 +102,19 @@ class AccountController extends Controller
                 return redirect()->back()->withErrors(['error' => 'Data dokter tidak ditemukan!']);
             }
 
-            UserPegawai::create([
-                'id_user' => $newUsernameEnc,
-                'password' => SIKCrypt::encrypt($request->new_password),
-                'nama_pegawai' => $dokter->nm_dokter,
-                'nik' => $dokter->kd_dokter, // Tambahkan ini biar gak error NIK kosong
-                'jabatan' => 'Dokter',
-                'stts_nikah' => $dokter->stts_nikah,
-                'alamat' => $dokter->alamat,
-                'no_telp' => $dokter->no_telp,
-            ]);
+            // Gunakan updateOrCreate agar jika NIK sudah ada, data DIGANTI (Replace), bukan ditambah baru
+            UserPegawai::updateOrCreate(
+                ['nik' => $kd_dokter],
+                [
+                    'id_user' => $newUsernameEnc,
+                    'password' => SIKCrypt::encrypt($request->new_password),
+                    'nama_pegawai' => $dokter->nm_dokter,
+                    'jabatan' => 'Dokter',
+                    'stts_nikah' => $dokter->stts_nikah,
+                    'alamat' => $dokter->alamat,
+                    'no_telp' => $dokter->no_telp,
+                ]
+            );
 
             return redirect()->back()->with('success', 'Akun ' . $dokter->nm_dokter . ' berhasil diaktifkan!');
         }
