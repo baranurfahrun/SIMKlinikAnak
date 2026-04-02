@@ -149,6 +149,16 @@ class AccountController extends Controller
             return redirect()->back()->with('error', 'Hapus akun sendiri? Jangan bercanda Bro! 😂');
         }
 
+        // Jika ini adalah dokter yang datanya belum dibuatkan akun, hapus dokter dari database
+        if (strpos($id, 'NEW_DOKTER_') === 0) {
+            $kd_dokter = str_replace('NEW_DOKTER_', '', $id);
+            $dokter = \App\Models\Dokter::where('kd_dokter', $kd_dokter)->first();
+            if ($dokter) {
+                $dokter->delete();
+                return redirect()->back()->with('success', 'Data Dokter ganda/kosong berhasil dihapus dari sistem sepenuhnya.');
+            }
+        }
+
         $admin = Admin::find($id);
         if ($admin) {
             $admin->delete();
