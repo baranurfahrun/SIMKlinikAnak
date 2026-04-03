@@ -78,6 +78,50 @@ class AccountController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'new_username' => 'required|min:4',
+            'new_password' => 'required|min:4',
+            'role' => 'required|in:admin,pegawai,dokter',
+            'nama' => 'required|string|max:100'
+        ]);
+
+        if (!Auth::guard('admin')->check()) {
+            return redirect()->back()->withErrors(['error' => 'Hanya Super Admin yang bisa menambah akun baru!']);
+        }
+
+        $usernameEnc = SIKCrypt::encrypt($request->new_username);
+        $passwordEnc = SIKCrypt::encrypt($request->new_password);
+
+        // Cek Keunikan Username (Global)
+        $existsInAdmin = Admin::where('usere', $usernameEnc)->exists();
+        $existsInPegawai = UserPegawai::where('id_user', $usernameEnc)->exists();
+
+        if ($existsInAdmin || $existsInPegawai) {
+            return redirect()->back()->withErrors(['new_username' => 'Username ini sudah terdaftar di sistem!']);
+        }
+
+        if ($request->role === 'admin') {
+            Admin::create([
+                'usere' => $usernameEnc,
+                'passworde' => $passwordEnc,
+                'nama' => $request->nama
+            ]);
+        } else {
+            $jabatan = $request->role === 'dokter' ? 'Dokter' : 'Staff Akses Sistem';
+            UserPegawai::create([
+                'id_user' => $usernameEnc,
+                'password' => $passwordEnc,
+                'nama_pegawai' => $request->nama,
+                'jabatan' => $jabatan,
+                'nik' => $request->new_username
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Akun ' . $request->new_username . ' berhasil dibuat & siap digunakan!');
+    }
+
     public function update(Request $request)
     {
         $request->validate([

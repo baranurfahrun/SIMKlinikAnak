@@ -115,10 +115,10 @@ export default function AppLayout({ header, children }) {
                         isOpen={isSidebarOpen}
                         active={route().current('pengaturan.*')}
                         items={[
-                            ...(auth.user.role === 'admin' ? [{ href: route('pengaturan.database'), label: 'Koneksi Database', icon: 'fas fa-database' }] : []),
+                            ...(auth.user.username === 'admin' ? [{ href: route('pengaturan.database'), label: 'Koneksi Database', icon: 'fas fa-database' }] : []),
                             { href: route('akun.index'), label: 'Pengaturan Akun', icon: 'fas fa-user-shield' },
-                            { href: route('pengaturan.sistem'), label: 'Konfigurasi Sistem', icon: 'fas fa-sliders' },
-                            ...(auth.user.role === 'admin' ? [{ href: route('pengaturan.sistem', { tab: 'security' }), label: 'Performance Guard', icon: 'fas fa-shield-halved' }] : []),
+                            ...(auth.user.username === 'admin' ? [{ href: route('pengaturan.sistem'), label: 'Konfigurasi Sistem', icon: 'fas fa-sliders' }] : []),
+                            ...(auth.user.username === 'admin' ? [{ href: route('pengaturan.sistem', { tab: 'security' }), label: 'Performance Guard', icon: 'fas fa-shield-halved' }] : []),
                         ]}
                     />
                 </nav>

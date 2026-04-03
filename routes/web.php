@@ -122,6 +122,7 @@ Route::middleware(['auth:admin,pegawai'])->group(function () {
         
         // Manajemen Akun (Bisa dilihat oleh semua, ksh filter di controller)
         Route::get('/akun', [\App\Http\Controllers\AccountController::class, 'index'])->name('akun.index');
+        Route::post('/akun/store', [\App\Http\Controllers\AccountController::class, 'store'])->name('akun.store')->middleware('admin.only');
         Route::post('/akun/update', [\App\Http\Controllers\AccountController::class, 'update'])->name('akun.update');
         Route::delete('/akun/{id}', [\App\Http\Controllers\AccountController::class, 'destroy'])->name('akun.destroy')->middleware('admin.only');
         Route::post('/akun/update-access/{id}', [\App\Http\Controllers\AccountController::class, 'updateAccess'])->name('akun.update_access')->middleware('admin.only');

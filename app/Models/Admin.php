@@ -12,13 +12,18 @@ class Admin extends Authenticatable
     public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
-    protected $appends = ['nama', 'role'];
+    protected $appends = ['nama', 'role', 'username'];
 
     protected $fillable = [
         'usere',
         'passworde',
         'nama',
     ];
+
+    public function getUsernameAttribute()
+    {
+        return \App\Helpers\SIKCrypt::decrypt($this->usere);
+    }
 
     protected $hidden = [
         'passworde',

@@ -24,17 +24,17 @@ class ProfileController extends Controller
             return redirect()->back()->withErrors(['error' => 'Sesi Anda telah berakhir, silakan login kembali.']);
         }
 
-        // 1. Update Nama
-        if (isset($user->nama)) {
-            $user->nama = $request->nama; // Admin
+        // 1. Update Nama (Bedakan Nama Kolom Admin & Pegawai)
+        if (Auth::guard('admin')->check()) {
+            $user->nama = $request->nama; // Kolom di tabel Admin
         } else {
-            $user->nama_pegawai = $request->nama; // Pegawai
+            $user->nama_pegawai = $request->nama; // Kolom di tabel UserPegawai
         }
 
         // 2. Update Password if Filled
         if ($request->filled('new_password')) {
             $encryptedPassword = SIKCrypt::encrypt($request->new_password);
-            if (isset($user->passworde)) {
+            if (Auth::guard('admin')->check()) {
                 $user->passworde = $encryptedPassword; // Admin
             } else {
                 $user->password = $encryptedPassword; // Pegawai
@@ -52,7 +52,7 @@ class ProfileController extends Controller
             }
 
             // Penamaan File berbasis ID User
-            $userId = isset($user->usere) ? SIKCrypt::decrypt($user->usere) : SIKCrypt::decrypt($user->id_user);
+            $userId = Auth::guard('admin')->check() ? SIKCrypt::decrypt($user->usere) : SIKCrypt::decrypt($user->id_user);
             $safeName = preg_replace('/[^a-zA-Z0-9]/', '_', $userId);
             
             // --- HAPUS FOTO LAMA (HANYA SIMPAN 1 FOTO) ---
