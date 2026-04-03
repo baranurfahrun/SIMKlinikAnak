@@ -77,12 +77,15 @@ class RekamMedisController extends Controller
             ->select('tarif_tindakan.nama_tindakan', 'detail_tagihan_tindakan.id')
             ->get();
 
+        $pemeriksaan_sekarang = PemeriksaanRalan::where('no_rawat', $no_rawat)->first();
+
         return Inertia::render('RekamMedis/Create', [
             'registrasi' => $reg,
             'riwayat' => $riwayat,
             'templates' => $templates,
             'tarif_pilihan' => \App\Models\TarifTindakan::orderBy('nama_tindakan', 'asc')->get(),
-            'tindakan_gabungan' => $tindakan_gabungan
+            'tindakan_gabungan' => $tindakan_gabungan,
+            'pemeriksaan_sekarang' => $pemeriksaan_sekarang
         ]);
     }
 
@@ -99,7 +102,9 @@ class RekamMedisController extends Controller
         try {
             DB::beginTransaction();
 
-            PemeriksaanRalan::create([
+            $pemeriksaan = PemeriksaanRalan::where('no_rawat', $request->no_rawat)->first();
+
+            $data_pemeriksaan = [
                 'no_rawat' => $request->no_rawat,
                 'tgl_pemeriksaan' => date('Y-m-d'),
                 'jam_pemeriksaan' => date('H:i:s'),
@@ -118,8 +123,14 @@ class RekamMedisController extends Controller
                 'penilaian' => $request->penilaian,
                 'tindak_lanjut' => $request->tindak_lanjut,
                 'alergi' => $request->alergi,
-                'nip' => auth()->user()->username ?? '', // Asumsi username menyimpan NIP/ID
-            ]);
+                'nip' => auth()->user()->username ?? '', 
+            ];
+
+            if ($pemeriksaan) {
+                $pemeriksaan->update($data_pemeriksaan);
+            } else {
+                PemeriksaanRalan::create($data_pemeriksaan);
+            }
 
             if ($request->jadikan_template) {
                 PemeriksaanRalanTemplate::create([

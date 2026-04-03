@@ -4,8 +4,9 @@ import { Head, Link, useForm } from '@inertiajs/inertia-react';
 import axios from 'axios';
 import { Inertia } from '@inertiajs/inertia';
 import Swal from 'sweetalert2';
+import TTVForm from '@/Components/TTVForm';
 
-export default function Create({ auth, registrasi, riwayat, templates, tarif_pilihan, tindakan_gabungan }) {
+export default function Create({ auth, registrasi, riwayat, templates, tarif_pilihan, tindakan_gabungan, pemeriksaan_sekarang }) {
     const [showForm, setShowForm] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editKey, setEditKey] = useState(null);
@@ -25,8 +26,25 @@ export default function Create({ auth, registrasi, riwayat, templates, tarif_pil
     const [endDate, setEndDate] = useState('');
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
-        no_rawat: registrasi.no_rawat, suhu_tubuh: '', tensi: '', nadi: '', respirasi: '', spo2: '', tinggi: '', berat: '', lingkar_perut: '', gcs: '', kesadaran: 'Compos Mentis',
-        keluhan: '', pemeriksaan: '', penilaian: '', tindak_lanjut: '', instruksi: '', evaluasi: '', alergi: '', jadikan_template: false,
+        no_rawat: registrasi.no_rawat, 
+        suhu_tubuh: pemeriksaan_sekarang?.suhu_tubuh || '', 
+        tensi: pemeriksaan_sekarang?.tensi || '', 
+        nadi: pemeriksaan_sekarang?.nadi || '', 
+        respirasi: pemeriksaan_sekarang?.respirasi || '', 
+        spo2: pemeriksaan_sekarang?.spo2 || '', 
+        tinggi: pemeriksaan_sekarang?.tinggi || '', 
+        berat: pemeriksaan_sekarang?.berat || '', 
+        lingkar_perut: pemeriksaan_sekarang?.lingkar_perut || '', 
+        gcs: pemeriksaan_sekarang?.gcs || '', 
+        kesadaran: pemeriksaan_sekarang?.kesadaran || 'Compos Mentis',
+        keluhan: pemeriksaan_sekarang?.keluhan === '-' ? '' : (pemeriksaan_sekarang?.keluhan || ''), 
+        pemeriksaan: pemeriksaan_sekarang?.pemeriksaan === '-' ? '' : (pemeriksaan_sekarang?.pemeriksaan || ''), 
+        penilaian: pemeriksaan_sekarang?.penilaian === '-' ? '' : (pemeriksaan_sekarang?.penilaian || ''), 
+        tindak_lanjut: pemeriksaan_sekarang?.tindak_lanjut === '-' ? '' : (pemeriksaan_sekarang?.tindak_lanjut || ''), 
+        instruksi: pemeriksaan_sekarang?.instruksi || '', 
+        evaluasi: pemeriksaan_sekarang?.evaluasi || '', 
+        alergi: pemeriksaan_sekarang?.alergi === '-' ? '' : (pemeriksaan_sekarang?.alergi || ''), 
+        jadikan_template: false,
     });
 
     const filteredTarif = tarif_pilihan?.filter(t =>
@@ -196,27 +214,7 @@ export default function Create({ auth, registrasi, riwayat, templates, tarif_pil
 
                                  {/* LAPIS 2: TANDA-TANDA VITAL (2 KOLOM) */}
                                  <div className="bg-white/40 backdrop-blur-3xl rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.02)] border border-white/50 p-8">
-                                     <div className="flex justify-between items-center mb-6">
-                                         <h3 className="font-bold text-slate-700">Tanda-Tanda Vital</h3>
-                                         <div className="text-[10px] font-bold text-sky-500 uppercase tracking-widest bg-sky-50/50 px-2 py-0.5 rounded-md">Physical Info</div>
-                                     </div>
-                                     <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-                                         <VitalInputSmall label="Suhu (°C)" icon="fa-thermometer-half" value={data.suhu_tubuh} onChange={e => setData('suhu_tubuh', e.target.value)} />
-                                         <VitalInputSmall label="Tensi" icon="fa-tint" value={data.tensi} onChange={e => setData('tensi', e.target.value)} />
-                                         <VitalInputSmall label="Berat (Kg)" icon="fa-weight" value={data.berat} onChange={e => setData('berat', e.target.value)} />
-                                         <VitalInputSmall label="TB (Cm)" icon="fa-ruler-vertical" value={data.tinggi} onChange={e => setData('tinggi', e.target.value)} />
-                                         <VitalInputSmall label="RR (/mnt)" icon="fa-wind" value={data.respirasi} onChange={e => setData('respirasi', e.target.value)} />
-                                         <VitalInputSmall label="Nadi (/mnt)" icon="fa-wave-square" value={data.nadi} onChange={e => setData('nadi', e.target.value)} />
-                                         <VitalInputSmall label="SpO2 (%)" icon="fa-lungs" value={data.spo2} onChange={e => setData('spo2', e.target.value)} />
-                                         <VitalInputSmall label="GCS" icon="fa-brain" value={data.gcs} onChange={e => setData('gcs', e.target.value)} />
-                                         <VitalInputSmall label="L.P. (Cm)" icon="fa-ruler-horizontal" value={data.lingkar_perut} onChange={e => setData('lingkar_perut', e.target.value)} />
-                                         <div className="col-span-1">
-                                             <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1 leading-none">Kesadaran</label>
-                                             <select value={data.kesadaran} onChange={e => setData('kesadaran', e.target.value)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 outline-none focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 transition-all cursor-pointer shadow-sm h-10">
-                                                 <option value="Compos Mentis">Compos Mentis</option><option value="Apatis">Apatis</option><option value="Delirium">Delirium</option><option value="Somnolen">Somnolen</option><option value="Stupor">Stupor</option><option value="Coma">Coma</option>
-                                             </select>
-                                         </div>
-                                     </div>
+                                     <TTVForm data={data} setData={setData} errors={errors} />
                                  </div>
 
                                  {/* LAPIS 3: TOMBOL AKSI */}
@@ -442,24 +440,6 @@ export default function Create({ auth, registrasi, riwayat, templates, tarif_pil
         </AppLayout>
     );
 }
-
-const VitalInputSmall = ({ label, value, onChange, icon }) => (
-    <div>
-        <label className="block text-[9px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 ml-1 leading-none">{label}</label>
-        <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-500 transition-colors">
-                <i className={`fas ${icon} text-[9px]`}></i>
-            </div>
-            <input
-                type="text"
-                value={value}
-                onChange={onChange}
-                className="w-full pl-8 pr-2 py-2 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 focus:bg-white outline-none transition-all text-[12px] font-bold text-slate-700 h-10 shadow-sm placeholder:text-slate-300"
-                placeholder="..."
-            />
-        </div>
-    </div>
-);
 
 const SoapField = ({ label, subtitle, value, onChange, placeholder, error, minHeight = "100px" }) => (
     <div className="group">

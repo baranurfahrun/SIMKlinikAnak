@@ -173,14 +173,6 @@ export default function Index({ auth, pasiens, filters }) {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => handleRegisterToPoli(pasien)}
-                                                className="px-3 py-1.5 bg-sky-50 text-sky-600 hover:bg-sky-500 hover:text-white rounded-xl text-[10px] font-bold transition-all flex items-center gap-1.5 whitespace-nowrap"
-                                                title="Daftar Klinik"
-                                            >
-                                                <i className="fas fa-stethoscope"></i>
-                                                DAFTAR KLINIK
-                                            </button>
                                             <Link
                                                 href={route('pasien.edit', pasien.no_rkm_medis)}
                                                 className="p-2 text-slate-400 hover:text-sky-500 hover:bg-white rounded-xl shadow-none hover:shadow-sm transition-all text-center flex items-center justify-center"

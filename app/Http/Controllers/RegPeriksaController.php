@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RegPeriksa;
+use App\Models\PemeriksaanRalan;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -92,6 +93,31 @@ class RegPeriksaController extends Controller
                 'asal_rujukan' => $request->asal_rujukan,
                 'no_ktp' => $request->no_ktp,
             ]);
+
+            // Save TTV Data if provided
+            if ($request->filled('suhu_tubuh') || $request->filled('berat') || $request->filled('tensi')) {
+                PemeriksaanRalan::create([
+                    'no_rawat' => $no_rawat,
+                    'tgl_pemeriksaan' => $tgl_sekarang,
+                    'jam_pemeriksaan' => $jam_sekarang,
+                    'suhu_tubuh' => $request->suhu_tubuh,
+                    'tensi' => $request->tensi,
+                    'nadi' => $request->nadi,
+                    'respirasi' => $request->respirasi,
+                    'spo2' => $request->spo2,
+                    'tinggi' => $request->tinggi,
+                    'berat' => $request->berat,
+                    'lingkar_perut' => $request->lingkar_perut,
+                    'gcs' => $request->gcs,
+                    'kesadaran' => $request->kesadaran ?? 'Compos Mentis',
+                    'keluhan' => '-',
+                    'pemeriksaan' => '-',
+                    'penilaian' => '-',
+                    'tindak_lanjut' => '-',
+                    'alergi' => '-',
+                    'nip' => auth()->user()->username ?? '',
+                ]);
+            }
 
             AuditLog::record('REG_POLI', 'Registrasi Baru Detail: ' . $no_rawat);
 

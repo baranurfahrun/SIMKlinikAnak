@@ -4,6 +4,7 @@ import { Head, Link, useForm } from '@inertiajs/inertia-react';
 import { Inertia } from '@inertiajs/inertia';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import TTVForm from '@/Components/TTVForm';
 
 export default function Index({ auth, registrasi, poliklinik, dokter, allPatients }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -12,6 +13,7 @@ export default function Index({ auth, registrasi, poliklinik, dokter, allPatient
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalSearchTerm, setModalSearchTerm] = useState('');
     const [isFormOpen, setIsFormOpen] = useState(true);
+    const [isTTVModalOpen, setIsTTVModalOpen] = useState(false);
 
     // Date Filter State
     const [filterByDate, setFilterByDate] = useState({
@@ -40,7 +42,9 @@ export default function Index({ auth, registrasi, poliklinik, dokter, allPatient
         almt_pj: '',
         kd_pj: 'UMM',
         asal_rujukan: '-',
-        no_ktp: ''
+        no_ktp: '',
+        // TTV Fields
+        suhu_tubuh: '', tensi: '', nadi: '', respirasi: '', spo2: '', tinggi: '', berat: '', lingkar_perut: '', gcs: '', kesadaran: 'Compos Mentis',
     });
 
     const { delete: destroy } = useForm();
@@ -281,18 +285,27 @@ export default function Index({ auth, registrasi, poliklinik, dokter, allPatient
                                 </div>
                             </div>
 
-                            <div className="pt-2">
+                            <div className="pt-2 flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsTTVModalOpen(true)}
+                                    className="w-1/4 py-4 bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 font-black rounded-2xl border-2 border-sky-200/50 hover:border-sky-300 transition-all flex items-center justify-center gap-3 shadow-sm group"
+                                    title="Input Tanda-Tanda Vital"
+                                >
+                                    <i className="fas fa-heartbeat text-sky-500 group-hover:scale-110 transition-transform"></i>
+                                    <span className="hidden md:inline uppercase tracking-widest text-[10px]">Input TTV</span>
+                                </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="w-full py-4 bg-gradient-to-r from-sky-600 to-sky-500 text-white font-bold rounded-2xl shadow-xl shadow-sky-100 hover:shadow-sky-200 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="flex-1 py-4 bg-gradient-to-r from-sky-600 to-sky-500 text-white font-bold rounded-2xl shadow-xl shadow-sky-100 hover:shadow-sky-200 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
                                     {processing ? (
                                         <i className="fas fa-circle-notch fa-spin"></i>
                                     ) : (
                                         <i className="fas fa-save"></i>
                                     )}
-                                    {processing ? 'SEDANG MENYIMPAN...' : 'SIMPAN REGISTRASI'}
+                                    {processing ? 'SEDANG MENYIMPAN...' : 'SIMPAN & CEK TTV'}
                                 </button>
                             </div>
                         </div>
@@ -401,6 +414,24 @@ export default function Index({ auth, registrasi, poliklinik, dokter, allPatient
                     </table>
                 </div>
             </div>
+
+            {/* MODAL TTV */}
+            {isTTVModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsTTVModalOpen(false)}></div>
+                    <div className="relative bg-white w-full max-w-xl rounded-[40px] shadow-2xl overflow-hidden border border-white p-8 animate-in fade-in zoom-in duration-300">
+                        <TTVForm data={data} setData={setData} errors={errors} />
+                        <div className="mt-8 flex justify-end">
+                            <button 
+                                onClick={() => setIsTTVModalOpen(false)} 
+                                className="px-8 py-3 bg-sky-500 text-white font-black rounded-2xl shadow-lg shadow-sky-100 hover:bg-sky-600 transition-all uppercase text-xs"
+                            >
+                                Selesai
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MODAL PENCARIAN PASIEN ( Khanza Style Premium ) */}
             {isModalOpen && (

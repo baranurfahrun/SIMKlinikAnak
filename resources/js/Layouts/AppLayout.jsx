@@ -58,9 +58,8 @@ export default function AppLayout({ header, children }) {
             >
                 <div className="p-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
-                            <img src="/images/logo.png" className="w-full h-full object-contain" alt="Logo" />
-                            {/* Force Reload */}
+                        <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white/50 shadow-sm border border-white/50">
+                            <img src="/images/logo.png" className="w-full h-full object-contain p-1" alt="Logo" />
                         </div>
                         {isSidebarOpen && (
                             <span className="text-xl font-bold tracking-tight text-slate-800">
@@ -140,9 +139,20 @@ export default function AppLayout({ header, children }) {
                                 />
                             </div>
                             {isSidebarOpen && (
-                                <div className="overflow-hidden">
-                                    <h4 className="text-sm font-bold text-slate-800 truncate">{auth.user.nama || 'User'}</h4>
-                                    <p className="text-[10px] font-black text-sky-500 uppercase tracking-wider">Role: {auth.user.role === 'admin' ? 'Super Admin' : (auth.user.jabatan || 'Pegawai')}</p>
+                                <div className="min-w-0 flex-1 px-1 overflow-hidden" style={{ maxWidth: '100px', flex: '1 1 0%' }}>
+                                    <h4 
+                                        className="text-sm font-bold text-slate-800" 
+                                        style={{ overflow: 'hidden !important', textOverflow: 'ellipsis !important', whiteSpace: 'nowrap !important', display: 'block !important', width: '100% !important' }}
+                                        title={auth.user.nama || 'User'}
+                                    >
+                                        {auth.user.nama || 'User'}
+                                    </h4>
+                                    <p 
+                                        className="text-[10px] font-black text-sky-500 uppercase tracking-wider"
+                                        style={{ overflow: 'hidden !important', textOverflow: 'ellipsis !important', whiteSpace: 'nowrap !important', display: 'block !important', width: '100% !important' }}
+                                    >
+                                        Role: {auth.user.role === 'admin' ? 'Super Admin' : (auth.user.jabatan || 'Pegawai')}
+                                    </p>
                                 </div>
                             )}
                         </div>
