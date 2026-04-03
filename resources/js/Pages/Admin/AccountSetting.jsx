@@ -219,13 +219,15 @@ export default function AccountSetting({ auth, accounts }) {
                                         </td>
                                         <td className="px-8 py-5 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleOpenAccess(acc)}
-                                                    className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"
-                                                    title="Kelola Hak Akses"
-                                                >
-                                                    <i className="fas fa-user-lock text-[10px]"></i>
-                                                </button>
+                                                {auth.user.role === 'admin' && (
+                                                    <button
+                                                        onClick={() => handleOpenAccess(acc)}
+                                                        className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"
+                                                        title="Kelola Hak Akses"
+                                                    >
+                                                        <i className="fas fa-user-lock text-[10px]"></i>
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => handleEdit(acc)}
                                                     className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-500 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"
@@ -233,7 +235,7 @@ export default function AccountSetting({ auth, accounts }) {
                                                 >
                                                     <i className="fas fa-key text-[10px]"></i>
                                                 </button>
-                                                {acc.username !== 'admin' && (
+                                                {auth.user.role === 'admin' && acc.username !== 'admin' && (
                                                     <button
                                                         onClick={() => handleDelete(acc)}
                                                         className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white transition-all duration-300 flex items-center justify-center shadow-sm"

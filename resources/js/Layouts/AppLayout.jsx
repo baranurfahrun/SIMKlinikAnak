@@ -109,20 +109,18 @@ export default function AppLayout({ header, children }) {
 
                     <NavItem href={route('kepegawaian.index')} icon="fas fa-users-cog text-amber-600" label="Kepegawaian" active={route().current('kepegawaian.*')} isOpen={isSidebarOpen} />
 
-                    {auth.user.role === 'admin' && (
-                        <NavGroup
-                            icon="fas fa-cog"
-                            label="Pengaturan"
-                            isOpen={isSidebarOpen}
-                            active={route().current('pengaturan.*')}
-                            items={[
-                                { href: route('pengaturan.database'), label: 'Koneksi Database', icon: 'fas fa-database' },
-                                { href: route('akun.index'), label: 'Pengaturan Akun', icon: 'fas fa-user-shield' },
-                                { href: route('pengaturan.sistem'), label: 'Konfigurasi Sistem', icon: 'fas fa-sliders' },
-                                { href: route('pengaturan.sistem', { tab: 'security' }), label: 'Performance Guard', icon: 'fas fa-shield-halved' },
-                            ]}
-                        />
-                    )}
+                    <NavGroup
+                        icon="fas fa-cog"
+                        label="Pengaturan"
+                        isOpen={isSidebarOpen}
+                        active={route().current('pengaturan.*')}
+                        items={[
+                            ...(auth.user.role === 'admin' ? [{ href: route('pengaturan.database'), label: 'Koneksi Database', icon: 'fas fa-database' }] : []),
+                            { href: route('akun.index'), label: 'Pengaturan Akun', icon: 'fas fa-user-shield' },
+                            { href: route('pengaturan.sistem'), label: 'Konfigurasi Sistem', icon: 'fas fa-sliders' },
+                            ...(auth.user.role === 'admin' ? [{ href: route('pengaturan.sistem', { tab: 'security' }), label: 'Performance Guard', icon: 'fas fa-shield-halved' }] : []),
+                        ]}
+                    />
                 </nav>
 
                 <div className="p-4 border-t border-slate-100/80">

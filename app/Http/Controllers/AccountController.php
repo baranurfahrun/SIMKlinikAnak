@@ -13,12 +13,16 @@ class AccountController extends Controller
 {
     public function index()
     {
-        // Hanya Admin yang bisa akses daftar akun
-        if (!Auth::guard('admin')->check()) {
-            return redirect('/dashboard')->with('error', 'Akses ditolak Bro!');
-        }
+        // Tentukan User Aktif
+        $isAdmin = Auth::guard('admin')->check();
+        $user = $isAdmin ? Auth::guard('admin')->user() : Auth::guard('pegawai')->user();
 
-        $admins = Admin::all()->map(function($a) {
+        // 1. Ambil Akun Admin
+        $admins = Admin::all()->filter(function($a) use ($isAdmin, $user) {
+            // Jika bukan admin, jangan perbolehkan lihat admin lain
+            if (!$isAdmin) return false;
+            return true;
+        })->map(function($a) {
             return [
                 'id' => $a->usere,
                 'nama' => $a->nama,
@@ -26,40 +30,48 @@ class AccountController extends Controller
                 'role' => 'admin',
                 'jabatan' => 'Super Admin',
                 'status' => 'Aktif',
-                'hak_akses' => $a->hak_akses // Ambil data izin
+                'hak_akses' => $a->hak_akses
             ];
         });
 
-        // Ambil semua nik yang sudah terdaftar di user_pegawai
-        $pegawais = UserPegawai::all();
+        // 2. Ambil Akun Pegawai (Termasuk Dokter)
+        $pegawais = UserPegawai::all()->filter(function($p) use ($isAdmin, $user) {
+            // Jika bukan admin, hanya boleh lihat akunya sendiri
+            if (!$isAdmin && $p->id_user !== $user->id_user) return false;
+            return true;
+        });
+
         $registeredNiks = $pegawais->pluck('nik')->filter()->toArray();
 
         $pegawaiList = $pegawais->map(function($p) {
             return [
                 'id' => $p->id_user,
-                'nama' => $p->nama,
+                'nama' => $p->nama_pegawai,
                 'username' => SIKCrypt::decrypt($p->id_user),
                 'role' => 'pegawai',
                 'jabatan' => $p->jabatan ?? 'Pegawai Klinik',
                 'status' => 'Aktif',
-                'hak_akses' => $p->hak_akses // Ambil data izin
+                'hak_akses' => $p->hak_akses
             ];
         });
 
-        // Ambil Dokter yang belum punya akun di user_pegawai (berdasarkan NIK)
-        $dokters = \App\Models\Dokter::all();
-        $dokterList = $dokters->filter(function($d) use ($registeredNiks) {
-            return !in_array($d->kd_dokter, $registeredNiks);
-        })->map(function($d) {
-            return [
-                'id' => 'NEW_DOKTER_' . $d->kd_dokter, // ID Semu untuk trigger aktivasi
-                'nama' => $d->nm_dokter,
-                'username' => $d->kd_dokter,
-                'role' => 'pegawai',
-                'jabatan' => 'Dokter',
-                'status' => 'Belum Aktif'
-            ];
-        });
+        // 3. Ambil Dokter Belum Aktif (Hanya bisa dilihat ADMIN)
+        $dokterList = collect([]);
+        if ($isAdmin) {
+            $dokters = \App\Models\Dokter::all();
+            $dokterList = $dokters->filter(function($d) use ($registeredNiks) {
+                return !in_array($d->kd_dokter, $registeredNiks);
+            })->map(function($d) {
+                return [
+                    'id' => 'NEW_DOKTER_' . $d->kd_dokter,
+                    'nama' => $d->nm_dokter,
+                    'username' => $d->kd_dokter,
+                    'role' => 'pegawai',
+                    'jabatan' => 'Dokter',
+                    'status' => 'Belum Aktif'
+                ];
+            });
+        }
 
         return Inertia::render('Admin/AccountSetting', [
             'accounts' => $admins->concat($pegawaiList)->concat($dokterList)
@@ -75,8 +87,12 @@ class AccountController extends Controller
             'new_password' => ($request->id && strpos($request->id, 'NEW_DOKTER_') === 0) ? 'required|min:4' : 'nullable|min:4',
         ]);
 
-        if (!Auth::guard('admin')->check()) {
-            return redirect()->back()->withErrors(['error' => 'Hanya Super Admin yang bisa mengelola akun!']);
+        $isAdmin = Auth::guard('admin')->check();
+        $currentUser = $isAdmin ? Auth::guard('admin')->user() : Auth::guard('pegawai')->user();
+        $currentId = $isAdmin ? $currentUser->usere : $currentUser->id_user;
+
+        if (!$isAdmin && $request->id !== $currentId) {
+            return redirect()->back()->withErrors(['error' => 'Hanya Super Admin yang bisa mengelola akun orang lain!']);
         }
 
         $newUsernameEnc = SIKCrypt::encrypt($request->new_username);

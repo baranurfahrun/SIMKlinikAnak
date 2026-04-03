@@ -113,16 +113,18 @@ Route::middleware(['auth:admin,pegawai'])->group(function () {
     Route::delete('/kepegawaian/staf/{id_user}', [\App\Http\Controllers\PegawaiController::class, 'destroyStaf'])->name('kepegawaian.staf.destroy');
 
     // Modul Pengaturan
-    Route::prefix('pengaturan')->middleware('admin.only')->group(function() {
-        Route::get('/database', [\App\Http\Controllers\DatabaseSettingController::class, 'index'])->name('pengaturan.database');
-        Route::post('/database/test', [\App\Http\Controllers\DatabaseSettingController::class, 'testConnection'])->name('pengaturan.database.test');
-        Route::post('/database/save', [\App\Http\Controllers\DatabaseSettingController::class, 'saveConnection'])->name('pengaturan.database.save');
+    // Modul Pengaturan
+    Route::prefix('pengaturan')->group(function() {
+        // Hanya Admin yang bisa atur database
+        Route::get('/database', [\App\Http\Controllers\DatabaseSettingController::class, 'index'])->name('pengaturan.database')->middleware('admin.only');
+        Route::post('/database/test', [\App\Http\Controllers\DatabaseSettingController::class, 'testConnection'])->name('pengaturan.database.test')->middleware('admin.only');
+        Route::post('/database/save', [\App\Http\Controllers\DatabaseSettingController::class, 'saveConnection'])->name('pengaturan.database.save')->middleware('admin.only');
         
-        // Manajemen Akun
+        // Manajemen Akun (Bisa dilihat oleh semua, ksh filter di controller)
         Route::get('/akun', [\App\Http\Controllers\AccountController::class, 'index'])->name('akun.index');
         Route::post('/akun/update', [\App\Http\Controllers\AccountController::class, 'update'])->name('akun.update');
-        Route::delete('/akun/{id}', [\App\Http\Controllers\AccountController::class, 'destroy'])->name('akun.destroy');
-        Route::post('/akun/update-access/{id}', [\App\Http\Controllers\AccountController::class, 'updateAccess'])->name('akun.update_access');
+        Route::delete('/akun/{id}', [\App\Http\Controllers\AccountController::class, 'destroy'])->name('akun.destroy')->middleware('admin.only');
+        Route::post('/akun/update-access/{id}', [\App\Http\Controllers\AccountController::class, 'updateAccess'])->name('akun.update_access')->middleware('admin.only');
         Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
         // Konfigurasi Sistem
