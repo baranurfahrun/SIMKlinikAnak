@@ -3,7 +3,7 @@
 // SISTEM PROTEKSI ASSET DIGITAL
 
 $integrity_hashes = [
-    'resources/js/Layouts/AppLayout.jsx' => '8a7476f2eb38b790207797e5a6280cd433dfed4b',
+    'resources/js/Layouts/AppLayout.jsx' => '30438753f2da3b25510e2d44b912b6f1d83c5375',
     'app/Http/Middleware/HandleInertiaRequests.php' => '824a262c97a2720103244edcbd3271027c9caaf7'
 ];
 

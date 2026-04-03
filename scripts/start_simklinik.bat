@@ -60,6 +60,13 @@ if exist "C:\xampp\xampp_start.exe" (
     popd
 )
 
+:: 6.2 Backup Database Otomatis (Antisipasi Kerusakan Data)
+echo - Melakukan backup database rutin...
+echo.
+php scripts/backup_db.php
+echo.
+timeout /t 2 >nul
+
 :: 7. Jalankan Server Utama
 echo.
 echo ==========================================================
