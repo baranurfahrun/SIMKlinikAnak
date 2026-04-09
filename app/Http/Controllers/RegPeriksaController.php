@@ -68,13 +68,29 @@ class RegPeriksaController extends Controller
         $jam_sekarang = date('H:i:s');
 
         try {
+            $lockKey = 'reg_periksa_lock_' . $request->no_rkm_medis;
+            $lock = \Illuminate\Support\Facades\Cache::lock($lockKey, 5);
+
+            if (!$lock->get()) {
+                return back()->withErrors(['error' => 'Sistem sedang memproses pendaftaran untuk pasien ini. Mohon tunggu beberapa detik.']);
+            }
+
             DB::beginTransaction();
 
-            $count = RegPeriksa::where('tgl_registrasi', $tgl_sekarang)
-                        ->where('kd_poli', $request->kd_poli)
-                        ->count();
-            $no_reg = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
-            $no_rawat = date('Y/m/d/') . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+            $max_no_reg = RegPeriksa::where('tgl_registrasi', $tgl_sekarang)
+                        ->where('kd_dokter', $request->kd_dokter)
+                        ->max('no_reg');
+            $no_reg = $max_no_reg ? str_pad(((int) $max_no_reg) + 1, 3, '0', STR_PAD_LEFT) : '001';
+
+            $max_no_rawat = RegPeriksa::where('tgl_registrasi', $tgl_sekarang)->max('no_rawat');
+            if ($max_no_rawat) {
+                // Ambil urutan di belakang 'YYYY/MM/DD/' dan pertahankan format padding aslinya.
+                $last_urutan_rawat = (int) substr($max_no_rawat, 11);
+                $panjang_digit = max(strlen($max_no_rawat) - 11, 4);
+                $no_rawat = date('Y/m/d/') . str_pad($last_urutan_rawat + 1, $panjang_digit, '0', STR_PAD_LEFT);
+            } else {
+                $no_rawat = date('Y/m/d/') . '0001';
+            }
 
             RegPeriksa::create([
                 'no_reg' => $no_reg,
@@ -122,9 +138,11 @@ class RegPeriksaController extends Controller
             AuditLog::record('REG_POLI', 'Registrasi Baru Detail: ' . $no_rawat);
 
             DB::commit();
+            if (isset($lock)) { $lock->release(); }
             return back()->with('message', 'Registrasi berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
+            if (isset($lock)) { $lock->release(); }
             return back()->withErrors(['error' => 'Gagal registrasi: ' . $e->getMessage()]);
         }
     }

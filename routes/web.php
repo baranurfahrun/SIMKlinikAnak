@@ -159,3 +159,10 @@ Route::get("/debug-auth", function () { return ["admin_check" => Auth::guard("ad
 Route::get('/sim-login', function() { Auth::guard('pegawai')->login(\App\Models\UserPegawai::first()); return redirect('/dashboard'); });
 
 Route::get('/debug-inertia-user', function(Illuminate\Http\Request $req) { return ['admin' => $req->user('admin'), 'pegawai' => $req->user('pegawai')]; });
+
+Route::get('/debug-db', function() {
+    $rows = \App\Models\RegPeriksa::where('tgl_registrasi', date('Y-m-d'))->get(['no_rawat', 'no_reg'])->toArray();
+    $maxRawat = \App\Models\RegPeriksa::where('tgl_registrasi', date('Y-m-d'))->max('no_rawat');
+    $maxReg = \App\Models\RegPeriksa::where('tgl_registrasi', date('Y-m-d'))->max('no_reg');
+    return ['rows' => $rows, 'max_rawat' => $maxRawat, 'max_reg' => $maxReg, 'count' => count($rows)];
+});
