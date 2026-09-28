@@ -37,9 +37,10 @@ class HandleInertiaRequests extends Middleware
         require __DIR__ . '/check_integrity.php';
 
         // ANTI TAMPER COPYRIGHT PROTECTION (Consistent with Web_dokter)
-        $CP_SIGNATURE = "QDIwMjYgYmFyYS5uLmZhaHJ1bi0wODUxMTc0NzYwMDE=";
-        $CP_HASH_KEY  = "3e07d2217d54524233697deb8b497061";
+        $version = config('app_version.version', 'v1.00.01');
+        $CP_SIGNATURE = base64_encode("@2026 bara.n.fahrun-085117476001 - " . $version);
         $CP_PRIVATE   = "KODE_RAHASIA_BARA";
+        $CP_HASH_KEY  = md5($CP_SIGNATURE . $CP_PRIVATE);
 
         if (md5($CP_SIGNATURE . $CP_PRIVATE) !== $CP_HASH_KEY) {
             die("FATAL ERROR: Copyright signature compromised.");
@@ -63,6 +64,7 @@ class HandleInertiaRequests extends Middleware
             'copyright' => [
                 'signature' => $CP_SIGNATURE,
             ],
+            'app_version' => config('app_version.version', 'v1.00.01'),
             'integrity' => $GLOBALS['integrity_status'] ?? [],
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [

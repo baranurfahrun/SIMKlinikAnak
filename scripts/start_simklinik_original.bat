@@ -1,5 +1,4 @@
 @echo off
-title SIMKLINIK UTAMA
 :: [ AUTO-RUNNER SIMKLINIK ]
 
 :: 1. AUTO-ELEVASI ADMINISTRATOR (Mendukung Spasi pada Folder)
@@ -52,39 +51,31 @@ if %errorLevel% equ 0 (
             echo [INFO] Sistem sudah up-to-date.
         )
     )
-    for /f "tokens=*" %%a in ('git rev-list --count HEAD') do set COMMIT_COUNT=%%a
 )
-if not defined COMMIT_COUNT set COMMIT_COUNT=00
 
 :: 6. Jalankan Database XAMPP
 if exist "C:\xampp\xampp_start.exe" (
-    echo - Memulai layanan Database XAMPP...
     pushd C:\xampp
     start /B "" "xampp_start.exe" >nul 2>&1
     popd
 )
 
-:: 7. Info Aplikasi
+:: 6.2 Backup Database Otomatis (Antisipasi Kerusakan Data)
+echo - Melakukan backup database rutin...
+echo.
+php scripts/backup_db.php
+echo.
+timeout /t 2 >nul
+
+:: 7. Jalankan Server Utama
 echo.
 echo ==========================================================
 echo   STATUS: ONLINE [0.0.0.0:8000]
-echo   VERSI SAAT INI: V.01.%COMMIT_COUNT%
 echo   Aplikasi bisa diakses dari komputer klien.
-echo.
-echo   [!] JANGAN TUTUP JENDELA INI [!]
-echo   Jendela ini berfungsi untuk auto-backup setiap 30 menit.
 echo ==========================================================
 echo.
+php artisan serve --host=0.0.0.0 --port=8000
 
-:: 8. Jalankan PHP Server di background
-start /B php artisan serve --host=0.0.0.0 --port=8000 >nul 2>&1
-
-:: 9. Jalankan Auto-Backup Loop di foreground
-:backup_loop
-echo [%time:~0,8%] Melakukan backup database rutin...
-php scripts/backup_db.php
-
-echo [%time:~0,8%] Backup selesai. Menunggu 30 menit untuk backup selanjutnya...
-timeout /t 1800 /nobreak
-
-goto backup_loop
+if %errorLevel% neq 0 pause
+popd
+exit

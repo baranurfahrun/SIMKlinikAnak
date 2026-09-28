@@ -6,7 +6,7 @@ import { id } from 'date-fns/locale';
 import YearCalendar from '@/Components/YearCalendar';
 
 export default function AppLayout({ header, children }) {
-    const { auth, settings, copyright } = usePage().props;
+    const { auth, settings, copyright, app_version } = usePage().props;
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const { post } = useForm();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -211,7 +211,10 @@ export default function AppLayout({ header, children }) {
                         </div>
                     </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 border-l border-slate-200/50 pl-4 ml-4">
+                <div className="hidden sm:flex items-center gap-3 border-l border-slate-200/50 pl-4 ml-4">
+                    <span className="bg-sky-500/10 text-sky-700 border border-sky-300/40 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono shadow-xs">
+                        {app_version || 'v1.00.01'}
+                    </span>
                     <span className="text-[10px] text-sky-600 font-black tracking-widest font-mono">
                         {copyright?.signature ? window.atob(copyright.signature) : '@2026 bara.n.fahrun-085117476001'}
                     </span>

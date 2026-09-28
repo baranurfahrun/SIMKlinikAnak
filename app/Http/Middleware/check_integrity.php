@@ -3,8 +3,8 @@
 // SISTEM PROTEKSI ASSET DIGITAL
 
 $integrity_hashes = [
-    'resources/js/Layouts/AppLayout.jsx' => 'c983c44d992e78112493d7f08689c3a1a677acde',
-    'app/Http/Middleware/HandleInertiaRequests.php' => '824a262c97a2720103244edcbd3271027c9caaf7'
+    'resources/js/Layouts/AppLayout.jsx' => '31fac7cc86f7e0f4704a1d966216950eea81f31c',
+    'app/Http/Middleware/HandleInertiaRequests.php' => '459a0f194ce1fa4cf3f4640dd4872b45ff7c6a74'
 ];
 
 $root_dir = dirname(dirname(dirname(__DIR__))); // Beranjak dari app/Http/Middleware ke Root
